@@ -21,7 +21,7 @@ defmodule Exzmq.Link do
 
   def start_link do
     :gen_fsm.start_link(__MODULE__, [], [@fsm_opts])
-  end 
+  end
 
   def start_connection do
     Exzmq.Link.Sup.start_connection()
@@ -96,7 +96,7 @@ defmodule Exzmq.Link do
   def connected(:timeout, state) do
     {:stop, :normal, state}
   end
-  def connected({:in, [_head | frames]}, %State{mqsocket: mqsocket, remote_id: remoteid} = state) do
+  def connected({:in, frames}, %State{mqsocket: mqsocket, remote_id: remoteid} = state) do
     Exzmq.deliver_recv(mqsocket, {remoteid, frames})
     {:next_state, :connected, state}
   end

@@ -101,13 +101,14 @@ defmodule Exzmq.Link do
     {:next_state, :connected, state}
   end
   def connected({:send, msg}, state) do
-    send_frames(["" | msg], {:next_state, :connected, state})
+    # NOTE: Not sure why msg was being passed with an initial empty frame.
+    send_frames(msg, {:next_state, :connected, state})
   end
 
   def handle_event(_event, state_name, state) do
     {:next_state, state_name, state}
   end
-  
+
   def handle_sync_event(:close, _from, _state_name, state) do
     {:stop, :normal, :ok, state}
   end

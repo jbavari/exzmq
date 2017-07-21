@@ -7,7 +7,7 @@ defmodule Exzmp.Mixfile do
       elixir: "~> 1.1",
       name: "Exzmq",
       source_url: "https://github.com/zeromq/exzmq",
-      deps: deps ]
+      deps: deps() ]
   end
 
   if System.get_env("ZMQ_TEST_SUITE") == "true" do

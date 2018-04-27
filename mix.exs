@@ -43,7 +43,7 @@ defmodule Exzmp.Mixfile do
   else
     defp deps do
       [
-        {:gen_listener_tcp, github: "kaos/gen_listener_tcp"}
+        {:gen_listener_tcp, github: "jbavari/gen_listener_tcp"}
       ]
     end
   end

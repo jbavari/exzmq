@@ -36,7 +36,7 @@ defmodule Exzmp.Mixfile do
   if System.get_env("ZMQ_TEST_SUITE") == "true" do
     defp deps do
       [
-        {:gen_listener_tcp, github: "kaos/gen_listener_tcp"},
+        {:gen_listener_tcp, github: "jbavari/gen_listener_tcp"},
         {:erlzmq, github: "zeromq/erlzmq2", tag: "2.1.11"}
       ]
     end

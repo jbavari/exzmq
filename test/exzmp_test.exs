@@ -4,22 +4,22 @@
 
 defmodule ExzmqTest do
   use ExUnit.Case, async: false
-  
+
   test "open a req socket, bind and close" do
     {:ok, s} = Exzmq.socket([{:type, :req}, {:active, false}])
     assert Exzmq.bind(s, :tcp, 5555, []) == :ok
     assert Exzmq.close(s) == :ok
   end
 
-  test "open a req socket, connect and close" do 
+  test "open a req socket, connect and close" do
     {:ok, s} = Exzmq.socket([{:type, :req}, {:active, false}])
     assert Exzmq.connect(s, :tcp, {127,0,0,1}, 5556, []) == :ok
     assert Exzmq.close(s) == :ok
   end
-  
+
   test "open a req socket and connect with a wrong address" do
     {:ok, s} = Exzmq.socket([{:type, :req}, {:active, false}])
-    assert Exzmq.connect(s, :tcp, "undefined.undefined", 5557, []) == {:error,:einval} 
+    assert Exzmq.connect(s, :tcp, "undefined.undefined", 5557, []) == {:error,:einval}
     assert Exzmq.close(s) == :ok
   end
 
@@ -35,7 +35,7 @@ defmodule ExzmqTest do
       {:ok, l} = :gen_tcp.listen(5559,[{:active, false}, {:packet, :raw}, {:reuseaddr, true}])
       {:ok, s1} = :gen_tcp.accept(l)
       :timer.sleep(15000) ## keep socket alive for at least 10sec...
-      :gen_tcp.close(s1)  
+      :gen_tcp.close(s1)
       end)
     {:ok, s} = Exzmq.socket([{:type, :req}, {:active, false}])
     :ok = Exzmq.connect(s, :tcp, {127,0,0,1}, 5559, [{:timeout, 1000}])
@@ -125,7 +125,7 @@ defmodule ExzmqTest do
     :timer.sleep(15000) ##wait for the connection setup timeout
     Exzmq.close(s)
   end
-   
+
   def create_multi_connect(_type, _active, _ip, _port, 0, acc) do
     acc
   end
@@ -192,7 +192,7 @@ defmodule ExzmqTest do
     basic_test_dealer_req({127,0,0,1}, 5559, 10, :passive, 3)
     basic_test_dealer_rep({127,0,0,1}, 5560, 10, :passive, 3)
   end
-  
+
   def basic_test_router_req(ip, port, cnt2, mode, size) do
     {s1, s2} = create_bound_pair_multi(:router, :req, cnt2, mode, ip, port)
     msg = String.duplicate("X", size)
@@ -207,8 +207,8 @@ defmodule ExzmqTest do
     :ok = Exzmq.close(s1)
     Enum.each(s2, fn(s) -> :ok = Exzmq.close(s) end)
   end
-  
-  test "basic tests router" do 
+
+  test "basic tests router" do
     basic_test_router_req({127,0,0,1}, 5561, 10, :passive, 3)
   end
 
@@ -246,7 +246,7 @@ defmodule ExzmqTest do
   test "basic tests pub sub" do
     basic_test_pub_sub({127,0,0,1}, 5561, 10, :passive, 3)
   end
- 
+
   test "shutdown stress test" do
     shutdown_stress_loop(10)
   end
@@ -296,10 +296,10 @@ defmodule ExzmqTest do
   end
 
   def req_tcp_fragment_send(socket, data) do
-    Enum.each(:erlang.binary_to_list(data), 
+    Enum.each(:erlang.binary_to_list(data),
       fn(x) ->
         :gen_tcp.send(socket, <<x>>)
-        :timer.sleep(10) 
+        :timer.sleep(10)
       end)
   end
 
@@ -311,7 +311,7 @@ defmodule ExzmqTest do
       req_tcp_fragment_send(s1, <<0x01,0x00>>)
       {:ok, _} = :gen_tcp.recv(s1, 0)
       send self, :connected
-      {:ok,<<_::bytes-size(4),"ZZZ">>} = :gen_tcp.recv(s1, 0)
+      {:ok,<<_::bytes-size(2),"ZZZ">>} = :gen_tcp.recv(s1, 0)
       req_tcp_fragment_send(s1, <<0x01, 0x7F, 0x06, 0x7E, "Hello">>)
       :gen_tcp.close(s1)
       send self, :done
@@ -320,7 +320,7 @@ defmodule ExzmqTest do
     :ok = Exzmq.connect(s, :tcp, {127,0,0,1}, 5562, [{:timeout, 1000}])
     assert_receive :connected, 1000
     :ok = Exzmq.send(s, [<<"ZZZ">>])
-    {:ok, [<<"Hello">>]} = Exzmq.recv(s)
+    {:ok, ["", <<"Hello">>]} = Exzmq.recv(s)
     Exzmq.close(s)
   end
 
